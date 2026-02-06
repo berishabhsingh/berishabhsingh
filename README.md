@@ -1,6 +1,7 @@
-# 💫 About Me:
-I'm currently learning java Python 
-Rishavsingh.in
+# 💫 About Me  
+I'm currently learning Java & Python  
+🌐 [rishavsingh.in](https://rishavsingh.in)
+
 
 ## 🌐 Socials:
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://linkedin.com/in/Berishabhsingh) [![email](https://img.shields.io/badge/Email-D14836?logo=gmail&logoColor=white)](mailto:Besinghrishabh@gmail.com) 
