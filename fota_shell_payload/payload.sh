@@ -5,6 +5,14 @@
 mount -o remount,rw / 2>/dev/null || true
 mount -o remount,rw /system 2>/dev/null || true
 
+# Attempt to mount other standard partitions in case we are in recovery
+mount /system 2>/dev/null || true
+mount /vendor 2>/dev/null || true
+mount /usrdata 2>/dev/null || true
+
+# Set up a comprehensive PATH so commands like ubus and lux_atc can be found
+export PATH="/usr/bin:/usr/sbin:/bin:/sbin:/system/bin:/system/xbin:/vendor/bin:$PATH"
+
 # Function to spawn a shell on a given tty
 spawn_shell() {
   TTY=$1
@@ -13,7 +21,8 @@ spawn_shell() {
     # Run in background. We try /bin/sh -i.
     (
       while true; do
-        /bin/sh -i < "$TTY" > "$TTY" 2>&1
+        # Use ENV=/etc/profile /bin/sh -l to simulate login environment if possible
+        ENV=/etc/profile /bin/sh -l < "$TTY" > "$TTY" 2>&1
         EXIT_CODE=$?
         if [ "$EXIT_CODE" -eq 99 ]; then
           echo "Exit code 99 received. Breaking loop and terminating sleep." > "$TTY"
