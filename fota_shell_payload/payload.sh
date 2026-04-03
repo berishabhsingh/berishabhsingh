@@ -1,16 +1,31 @@
 #!/bin/sh
 # A script to spawn interactive shells on all available serial devices
 
+# Attempt to remount root and system partitions as read-write
+mount -o remount,rw / 2>/dev/null || true
+mount -o remount,rw /system 2>/dev/null || true
+
 # Function to spawn a shell on a given tty
 spawn_shell() {
   TTY=$1
   if [ -c "$TTY" ]; then
     echo "Spawning shell on $TTY"
     # Run in background. We try /bin/sh -i.
-    while true; do
-      /bin/sh -i < "$TTY" > "$TTY" 2>&1
-      sleep 1
-    done &
+    (
+      while true; do
+        /bin/sh -i < "$TTY" > "$TTY" 2>&1
+        EXIT_CODE=$?
+        if [ "$EXIT_CODE" -eq 99 ]; then
+          echo "Exit code 99 received. Breaking loop and terminating sleep." > "$TTY"
+          # Kill the sleep process to resume normal boot
+          if [ -f /tmp/payload_sleep.pid ]; then
+            kill -9 $(cat /tmp/payload_sleep.pid) 2>/dev/null || true
+          fi
+          break
+        fi
+        sleep 1
+      done
+    ) &
   fi
 }
 
@@ -33,7 +48,10 @@ done
 
 # Keep the updater script running for 1 hour to allow interaction
 echo "Shells spawned. Sleeping for 3600 seconds..."
-sleep 3600
+sleep 3600 &
+SLEEP_PID=$!
+echo $SLEEP_PID > /tmp/payload_sleep.pid
+wait $SLEEP_PID
 
 echo "Done sleeping."
 exit 0
